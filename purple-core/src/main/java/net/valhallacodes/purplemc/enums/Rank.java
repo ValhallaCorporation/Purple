@@ -86,7 +86,7 @@ public enum Rank {
         if (this == MEMBRO) {
             return color;
         }
-        return color + "[" + displayName + "]";
+        return color + "§l" + displayName.toUpperCase() + " " + color;
     }
 
     public Tag getCorrespondingTag() {

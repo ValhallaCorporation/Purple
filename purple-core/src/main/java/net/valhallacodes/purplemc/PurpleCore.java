@@ -19,6 +19,8 @@ import net.valhallacodes.purplemc.commands.ReportCommand;
 import net.valhallacodes.purplemc.commands.GoCommand;
 import net.valhallacodes.purplemc.commands.TagCommand;
 import net.valhallacodes.purplemc.commands.AccCommand;
+import net.valhallacodes.purplemc.commands.StaffChatCommand;
+import net.valhallacodes.purplemc.listeners.StaffChatListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ public class PurpleCore extends Plugin {
     private BackendManager backendManager;
     private MOTDManager motdManager;
     private PlayerManager playerManager;
+    private StaffChatCommand staffChatCommand;
     private Configuration config;
     
     @Override
@@ -52,14 +55,17 @@ public class PurpleCore extends Plugin {
         
         motdManager = new MOTDManager(this);
         playerManager = new PlayerManager(this);
+        staffChatCommand = new StaffChatCommand(this);
         
         getProxy().getPluginManager().registerListener(this, new PlayerListener(this));
         getProxy().getPluginManager().registerListener(this, new MOTDListener(this));
+        getProxy().getPluginManager().registerListener(this, new StaffChatListener(this, staffChatCommand));
         
-                getProxy().getPluginManager().registerCommand(this, new ReportCommand(this));
-                getProxy().getPluginManager().registerCommand(this, new GoCommand(this));
-                getProxy().getPluginManager().registerCommand(this, new TagCommand(this));
-                getProxy().getPluginManager().registerCommand(this, new AccCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new ReportCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new GoCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new TagCommand(this));
+        getProxy().getPluginManager().registerCommand(this, new AccCommand(this));
+        getProxy().getPluginManager().registerCommand(this, staffChatCommand);
         
         getLogger().info("PurpleCore habilitado com sucesso!");
     }
@@ -117,7 +123,11 @@ public class PurpleCore extends Plugin {
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
-    
+
+    public StaffChatCommand getStaffChatCommand() {
+        return staffChatCommand;
+    }
+
     public Configuration getConfig() {
         return config;
     }
