@@ -1,0 +1,14 @@
+backend:
+  host: "localhost"
+  port: 3306
+  database: "purplemc"
+  username: "root"
+  password: ""
+  ssl: false
+  connection-timeout: 30000
+
+motd:
+  enabled: true
+  messages:
+    - "§r                        §d✦ §5§lPURPLE§f§lMC §d✦§r            §e§lNOVOS MODOS §6§l> §b§lDUELS§6§l §c❘ §a§lESCONDE-ESCONDE§6§l "
+  update-interval: 5
