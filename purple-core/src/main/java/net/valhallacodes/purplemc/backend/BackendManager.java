@@ -22,6 +22,7 @@ public class BackendManager {
     private String host, database, username, password;
     private int port;
     private boolean ssl;
+    private boolean tablesCreated = false;
     
     public BackendManager(PurpleCore plugin) {
         this.plugin = plugin;
@@ -40,15 +41,23 @@ public class BackendManager {
     }
     
     public void initialize() throws SQLException {
+        if (connection != null && !connection.isClosed()) {
+            return; 
+        }
+        
         String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%s&autoReconnect=true&useUnicode=true&characterEncoding=UTF-8",
                 host, port, database, ssl);
-        
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             this.connection = DriverManager.getConnection(url, username, password);
-            createTables();
-            plugin.getLogger().info("Conexão com backend estabelecida com sucesso!");
+            
+            if (!tablesCreated) {
+                createTables();
+                tablesCreated = true;
+            }
         } catch (ClassNotFoundException e) {
+            throw new SQLException("Driver MySQL não encontrado: " + e.getMessage());
         }
     }
     
@@ -73,7 +82,6 @@ public class BackendManager {
             stmt.executeUpdate();
             stmt.close();
             
-            plugin.getLogger().info("Tabela players criada/verificada com sucesso!");
             
         } catch (SQLException e) {
             plugin.getLogger().severe("Erro ao criar tabela players: " + e.getMessage());
@@ -92,6 +100,13 @@ public class BackendManager {
     }
     
     public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                initialize();
+            }
+        } catch (SQLException e) {
+            plugin.getLogger().severe("Erro ao verificar conexão backend: " + e.getMessage());
+        }
         return connection;
     }
 }

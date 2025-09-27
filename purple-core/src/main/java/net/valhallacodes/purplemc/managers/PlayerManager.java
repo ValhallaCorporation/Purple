@@ -118,33 +118,56 @@ public class PlayerManager {
         });
     }
     
-    public CompletableFuture<Void> setRank(UUID uuid, Rank rank) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Boolean> setRank(UUID uuid, Rank rank) {
+        return CompletableFuture.supplyAsync(() -> {
             Player player = players.get(uuid);
             if (player != null) {
                 player.setRank(rank);
                 updatePlayer(player);
+                return true;
             }
+            return false;
         });
     }
     
-    public CompletableFuture<Void> setTag(UUID uuid, Tag tag) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Boolean> setTag(UUID uuid, Tag tag) {
+        return CompletableFuture.supplyAsync(() -> {
             Player player = players.get(uuid);
-            if (player != null) {
-                player.setTag(tag);
-                updatePlayer(player);
+            if (player == null) {
+                try (Connection conn = plugin.getBackendManager().getConnection()) {
+                    String sql = "SELECT * FROM players WHERE uuid = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                        stmt.setString(1, uuid.toString());
+                        try (ResultSet rs = stmt.executeQuery()) {
+                            if (rs.next()) {
+                                player = createPlayerFromResultSet(rs);
+                                players.put(uuid, player);
+                            } else {
+                                return false;
+                            }
+                        }
+                    }
+                } catch (SQLException e) {
+                    plugin.getLogger().severe("Erro ao carregar jogador para setTag: " + e.getMessage());
+                    return false;
+                }
             }
+            
+            player.setTag(tag);
+            updatePlayer(player);
+            return true;
         });
     }
     
-    public CompletableFuture<Void> setPrefixType(UUID uuid, PrefixType prefixType) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Boolean> setPrefixType(UUID uuid, PrefixType prefixType) {
+        return CompletableFuture.supplyAsync(() -> {
             Player player = players.get(uuid);
             if (player != null) {
                 player.setPrefixType(prefixType);
                 updatePlayer(player);
+                return true;
             }
+            return false;
         });
     }
     

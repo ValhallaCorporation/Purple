@@ -18,6 +18,7 @@ import net.valhallacodes.purplemc.managers.PlayerManager;
 import net.valhallacodes.purplemc.commands.ReportCommand;
 import net.valhallacodes.purplemc.commands.GoCommand;
 import net.valhallacodes.purplemc.commands.TagCommand;
+import net.valhallacodes.purplemc.commands.AccCommand;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,9 +56,10 @@ public class PurpleCore extends Plugin {
         getProxy().getPluginManager().registerListener(this, new PlayerListener(this));
         getProxy().getPluginManager().registerListener(this, new MOTDListener(this));
         
-        getProxy().getPluginManager().registerCommand(this, new ReportCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new GoCommand(this));
-        getProxy().getPluginManager().registerCommand(this, new TagCommand(this));
+                getProxy().getPluginManager().registerCommand(this, new ReportCommand(this));
+                getProxy().getPluginManager().registerCommand(this, new GoCommand(this));
+                getProxy().getPluginManager().registerCommand(this, new TagCommand(this));
+                getProxy().getPluginManager().registerCommand(this, new AccCommand(this));
         
         getLogger().info("PurpleCore habilitado com sucesso!");
     }

@@ -42,7 +42,7 @@ public class MOTDManager {
     private void loadMessages() {
         this.messages = config.getStringList("motd.messages");
         if (messages.isEmpty()) {
-            messages.add("§r                        §d✦ §5§lPURPLE§f§lMC §d✦§r            §e§lNOVOS MODOS §6§l> §b§lDUELS§6§l §c❘ §a§lESCONDE-ESCONDE§6§l ");
+            messages.add("§r                        §d✦ §5§lPURPLE§f§lMC §d✦§r                  §e§lNOVOS MODOS §6§l> §b§lDUELS§6§l §c❘ §a§lESCONDE-ESCONDE§6§l");
         }
     }
     
@@ -85,7 +85,7 @@ public class MOTDManager {
         }
         
         if (messages.isEmpty()) {
-            return "§r                        §d✦ §5§lPURPLE§f§lMC §d✦§r            §e§lNOVOS MODOS §6§l> §b§lDUELS§6§l §c❘ §a§lESCONDE-ESCONDE§6§l ";
+            return "§r                        §d✦ §5§lPURPLE§f§lMC §d✦§r                  §e§lNOVOS MODOS §6§l> §b§lDUELS§6§l §c❘ §a§lESCONDE-ESCONDE§6§l";
         }
         
         String message = messages.get(currentIndex);

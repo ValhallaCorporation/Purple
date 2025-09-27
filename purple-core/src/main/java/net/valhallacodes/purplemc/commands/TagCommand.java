@@ -18,13 +18,11 @@ import java.util.*;
 
 public class TagCommand extends Command {
 
-    private final PurpleCore plugin;
     private final PlayerManager playerManager;
     private final Map<UUID, Player> playerDataCache;
 
     public TagCommand(PurpleCore plugin) {
         super("tag");
-        this.plugin = plugin;
         this.playerManager = plugin.getPlayerManager();
         this.playerDataCache = new HashMap<>();
     }
@@ -43,6 +41,18 @@ public class TagCommand extends Command {
                 if (data != null) {
                     playerDataCache.put(player.getUniqueId(), data);
                     executeCommand(player, args);
+                } else {
+                    // Se o jogador não existe no banco, criar automaticamente
+                    playerManager.createPlayer(player.getUniqueId(), player.getName()).thenAccept(v -> {
+                        playerManager.getPlayer(player.getUniqueId()).thenAccept(newData -> {
+                            if (newData != null) {
+                                playerDataCache.put(player.getUniqueId(), newData);
+                                executeCommand(player, args);
+                            } else {
+                                player.sendMessage("§cErro ao carregar dados do jogador!");
+                            }
+                        });
+                    });
                 }
             });
             return;
@@ -60,6 +70,13 @@ public class TagCommand extends Command {
     }
 
     private void showAvailableTags(ProxiedPlayer player) {
+        Player playerData = playerDataCache.get(player.getUniqueId());
+        
+        if (playerData == null) {
+            player.sendMessage("§cErro ao carregar dados do jogador!");
+            return;
+        }
+        
         List<Tag> availableTags = new ArrayList<>();
         
         Tag[] orderedTags = {Tag.ADMIN, Tag.COORD, Tag.MOD_PLUS, Tag.MOD, Tag.CREATOR_PLUS, 
@@ -81,14 +98,7 @@ public class TagCommand extends Command {
         for (int i = 0; i < availableTags.size(); i++) {
             Tag tag = availableTags.get(i);
             
-            Player playerData = playerDataCache.get(player.getUniqueId());
-            boolean isCurrentTag = playerData != null && playerData.getTag() == tag;
-            
             message.append(tag.getColor()).append(tag.getName());
-            
-            if (isCurrentTag) {
-                message.append("§f (atual)");
-            }
             
             if (i < availableTags.size() - 1) {
                 message.append("§f, ");
@@ -120,9 +130,12 @@ public class TagCommand extends Command {
 
         playerManager.setTag(player.getUniqueId(), tag).thenAccept(success -> {
             if (success) {
-                if (playerData != null) {
-                    playerData.setTag(tag);
-                }
+                playerManager.getPlayer(player.getUniqueId()).thenAccept(updatedPlayer -> {
+                    if (updatedPlayer != null) {
+                        playerDataCache.put(player.getUniqueId(), updatedPlayer);
+                        updatePlayerDisplayName(player, tag);
+                    }
+                });
                 
                 player.sendMessage("§aTag alterada para: " + tag.getColor() + tag.getName());
             } else {
@@ -196,5 +209,10 @@ public class TagCommand extends Command {
             default:
                 return tag == Tag.MEMBER;
         }
+    }
+
+    private void updatePlayerDisplayName(ProxiedPlayer player, Tag tag) {
+        String displayName = tag.getColoredPrefix() + " " + player.getName();
+        player.setDisplayName(displayName);
     }
 }
