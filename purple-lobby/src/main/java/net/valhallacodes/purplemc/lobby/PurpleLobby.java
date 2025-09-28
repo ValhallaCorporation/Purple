@@ -7,6 +7,8 @@
 package net.valhallacodes.purplemc.lobby;
 
 import net.valhallacodes.purplemc.lobby.gui.ServerSelectorGUI;
+import net.valhallacodes.purplemc.lobby.gui.ProfileGUI;
+import net.valhallacodes.purplemc.lobby.gui.LunaPlusColorGUI;
 import net.valhallacodes.purplemc.lobby.listeners.PlayerJoinListener;
 import net.valhallacodes.purplemc.lobby.listeners.CustomJoinLeaveListener;
 import net.valhallacodes.purplemc.lobby.listeners.TagUpdateListener;
@@ -55,6 +57,8 @@ public class PurpleLobby extends JavaPlugin {
     private LobbyProtectionListener protectionListener;
     private ServerCountManager serverCountManager;
     private ServerCountListener serverCountListener;
+    private ProfileGUI profileGUI;
+    private LunaPlusColorGUI lunaPlusColorGUI;
     
     @Override
     public void onEnable() {
@@ -87,6 +91,8 @@ public class PurpleLobby extends JavaPlugin {
         protectionListener = new LobbyProtectionListener(this);
         serverCountListener = new ServerCountListener(this);
         serverCountManager = serverCountListener.getServerCountManager();
+        profileGUI = new ProfileGUI(this);
+        lunaPlusColorGUI = new LunaPlusColorGUI(this);
         
         BungeeUtils.initialize(this);
         
@@ -112,6 +118,8 @@ public class PurpleLobby extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ServerSelectorClickListener(this), this);
         getServer().getPluginManager().registerEvents(new ServerSelectorGUI(this), this);
         getServer().getPluginManager().registerEvents(serverCountListener, this);
+        getServer().getPluginManager().registerEvents(profileGUI, this);
+        getServer().getPluginManager().registerEvents(lunaPlusColorGUI, this);
         
         tagUpdateListener = new TagUpdateListener(this);
         getServer().getPluginManager().registerEvents(tagUpdateListener, this);
@@ -186,5 +194,13 @@ public class PurpleLobby extends JavaPlugin {
     
     public ServerCountManager getServerCountManager() {
         return serverCountManager;
+    }
+    
+    public ProfileGUI getProfileGUI() {
+        return profileGUI;
+    }
+    
+    public LunaPlusColorGUI getLunaPlusColorGUI() {
+        return lunaPlusColorGUI;
     }
 }

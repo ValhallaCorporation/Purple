@@ -39,8 +39,16 @@ public class ChatListener implements Listener {
                 formattedMessage = ChatColor.translateAlternateColorCodes('&', 
                     "&7" + player.getName() + "&f: &f" + message);
             } else {
+                // Usar cor personalizada para LUNA+
+                String prefix;
+                if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+                    prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+                } else {
+                    prefix = tagColor + "&l" + tagName.toUpperCase() + " " + tagColor;
+                }
+                
                 formattedMessage = ChatColor.translateAlternateColorCodes('&',
-                    tagColor + "&l" + tagName.toUpperCase() + " " + tagColor + player.getName() + "&f: &f" + message);
+                    prefix + player.getName() + "&f: &f" + message);
             }
         } else {
             formattedMessage = ChatColor.translateAlternateColorCodes('&',

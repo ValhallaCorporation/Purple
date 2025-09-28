@@ -114,6 +114,18 @@ public enum Tag {
         }
         return color + "&l" + getName().toUpperCase() + " " + color;
     }
+    
+    public String getColoredPrefix(String customPlusColor) {
+        if (this == MEMBER) {
+            return color;
+        }
+        if (this == LUNA_PLUS && customPlusColor != null) {
+            // Converter códigos de cor para formato correto
+            String formattedCustomColor = customPlusColor.replace("&", "§");
+            return color + "&lLUNA" + formattedCustomColor + "&l+ " + color;
+        }
+        return color + "&l" + getName().toUpperCase() + " " + color;
+    }
 
     public int getId() {
         return id;

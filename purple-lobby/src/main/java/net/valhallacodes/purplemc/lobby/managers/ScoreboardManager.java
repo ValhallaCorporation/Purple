@@ -109,7 +109,11 @@ public class ScoreboardManager {
         String rank = "§7Membro";
         
         if (playerData != null) {
-            rank = playerData.getRank().getFormattedName();
+            if (playerData.getRank() == net.valhallacodes.purplemc.lobby.enums.Rank.MEMBRO) {
+                rank = "§7Membro";
+            } else {
+                rank = playerData.getRank().getFormattedName();
+            }
         }
         
         cachedRanks.put(uuid, rank);
@@ -173,6 +177,7 @@ public class ScoreboardManager {
         }
         
         try {
+            // Forçar recarregamento dos dados do jogador
             PlayerManager.PlayerData playerData = plugin.getPlayerManager().loadPlayerData(player.getUniqueId());
             if (playerData != null && playerData.getTag() != null) {
                 String tagName = playerData.getTag().getName();
@@ -180,9 +185,17 @@ public class ScoreboardManager {
                 
                 String formattedName;
                 if (tagName.equals("Membro")) {
-                    formattedName = ChatColor.translateAlternateColorCodes('&', "§7" + player.getName());
+                    formattedName = ChatColor.translateAlternateColorCodes('&', "&7" + player.getName());
                 } else {
-                    formattedName = ChatColor.translateAlternateColorCodes('&', tagColor + "&l" + tagName.toUpperCase() + " " + tagColor + player.getName());
+                    // Usar cor personalizada para LUNA+
+                    String prefix;
+                    if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+                        prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+                    } else {
+                        prefix = playerData.getTag().getColoredPrefix();
+                    }
+                    
+                    formattedName = ChatColor.translateAlternateColorCodes('&', prefix + player.getName());
                 }
                 
                 player.setPlayerListName(formattedName);
@@ -214,6 +227,9 @@ public class ScoreboardManager {
             }
             
             setupPlayerNameTag(player, globalTeamScoreboard);
+            
+            // Atualizar display name diretamente
+            updatePlayerTabNameSafe(player);
         } catch (Exception e) {
             plugin.getLogger().warning("Erro ao atualizar scoreboard para " + player.getName() + ": " + e.getMessage());
         }
@@ -268,15 +284,35 @@ public class ScoreboardManager {
             if (tagName.equals("Membro")) {
                 team.setPrefix(ChatColor.translateAlternateColorCodes('&', "§7"));
             } else {
-                team.setPrefix(ChatColor.translateAlternateColorCodes('&', tagColor + "&l" + tagName.toUpperCase() + " " + tagColor));
+                // Usar cor personalizada para LUNA+
+                String prefix;
+                if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+                    prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+                } else {
+                    prefix = tagColor + "&l" + tagName.toUpperCase() + " " + tagColor;
+                }
+                
+                team.setPrefix(ChatColor.translateAlternateColorCodes('&', prefix));
             }
             
             team.addEntry(player.getName());
             
             if (tagName.equals("Membro")) {
-                player.setPlayerListName(ChatColor.translateAlternateColorCodes('&', "§7" + player.getName()));
+                String formattedName = ChatColor.translateAlternateColorCodes('&', "§7" + player.getName());
+                player.setPlayerListName(formattedName);
+                player.setDisplayName(formattedName);
             } else {
-                player.setPlayerListName(ChatColor.translateAlternateColorCodes('&', tagColor + "&l" + tagName.toUpperCase() + " " + tagColor + player.getName()));
+                // Usar cor personalizada para LUNA+
+                String prefix;
+                if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+                    prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+                } else {
+                    prefix = tagColor + "&l" + tagName.toUpperCase() + " " + tagColor;
+                }
+                
+                String formattedName = ChatColor.translateAlternateColorCodes('&', prefix + player.getName());
+                player.setPlayerListName(formattedName);
+                player.setDisplayName(formattedName);
             }
             
             if (scoreboard == globalTeamScoreboard) {

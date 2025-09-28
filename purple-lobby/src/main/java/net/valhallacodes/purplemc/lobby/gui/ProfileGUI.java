@@ -65,7 +65,7 @@ public class ProfileGUI implements Listener {
             headMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', playerName));
             headMeta.setLore(Arrays.asList(
                 ChatColor.translateAlternateColorCodes('&', "&7" + firstLogin),
-                ChatColor.translateAlternateColorCodes('&', "&7Rank: " + rankColor + rankName + " &7(Permanente)")
+                ChatColor.translateAlternateColorCodes('&', "&7Rank: " + rankColor + rankName)
             ));
         } else {
             headMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&7" + player.getName()));
@@ -77,6 +77,20 @@ public class ProfileGUI implements Listener {
         
         playerHead.setItemMeta(headMeta);
         gui.setItem(13, playerHead);
+        
+        // Adicionar botão para trocar cor da LUNA+ se o jogador tiver o rank LUNA_PLUS
+        if (playerData != null && playerData.getRank() == net.valhallacodes.purplemc.lobby.enums.Rank.LUNA_PLUS) {
+            ItemStack lunaPlusButton = new ItemStack(Material.INK_SACK, 1, (short) 5); // Cor magenta
+            ItemMeta lunaPlusMeta = lunaPlusButton.getItemMeta();
+            lunaPlusMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', "&5&lLUNA&d&l+ &7Personalizar Cor"));
+            lunaPlusMeta.setLore(Arrays.asList(
+                ChatColor.translateAlternateColorCodes('&', "&7Clique para personalizar a cor do +"),
+                ChatColor.translateAlternateColorCodes('&', "&7Cor atual: " + playerData.getLunaPlusColor() + "&l+"),
+                ChatColor.translateAlternateColorCodes('&', "&7Exemplo: &5&lLUNA" + playerData.getLunaPlusColor() + "&l+")
+            ));
+            lunaPlusButton.setItemMeta(lunaPlusMeta);
+            gui.setItem(22, lunaPlusButton);
+        }
         
         player.openInventory(gui);
     }
@@ -90,6 +104,18 @@ public class ProfileGUI implements Listener {
         // Verificar se é o GUI de perfil
         if (event.getView().getTitle().equals(guiTitle)) {
             event.setCancelled(true);
+            
+            int slot = event.getSlot();
+            
+            if (slot == 22) {
+                // Botão de personalizar cor da LUNA+
+                PlayerManager.PlayerData playerData = plugin.getPlayerManager().loadPlayerData(player.getUniqueId());
+                if (playerData != null && playerData.getRank() == net.valhallacodes.purplemc.lobby.enums.Rank.LUNA_PLUS) {
+                    player.closeInventory();
+                    plugin.getLunaPlusColorGUI().openLunaPlusColorGUI(player);
+                    return;
+                }
+            }
             
             // Fechar GUI se clicar em qualquer lugar
             player.closeInventory();

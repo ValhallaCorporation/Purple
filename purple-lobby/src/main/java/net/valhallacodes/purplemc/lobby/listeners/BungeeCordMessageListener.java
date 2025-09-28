@@ -71,9 +71,6 @@ public class BungeeCordMessageListener implements Listener, PluginMessageListene
                     } else {
                         BungeeUtils.getInstance().updateServerCount(server, count);
                     }
-                } catch (java.io.EOFException eofException) {
-                    // EOFException específico - mensagem incompleta
-                    plugin.getLogger().fine("Mensagem PlayerCount incompleta - ignorando: " + eofException.getMessage());
                 } catch (Exception dataException) {
                     plugin.getLogger().fine("Mensagem PlayerCount inválida - ignorando: " + dataException.getMessage());
                 }
@@ -88,16 +85,10 @@ public class BungeeCordMessageListener implements Listener, PluginMessageListene
                     String tagName = in.readUTF();
                     
                     updatePlayerTag(playerName, tagName);
-                } catch (java.io.EOFException eofException) {
-                    // EOFException específico - mensagem incompleta
-                    plugin.getLogger().fine("Mensagem TagUpdate incompleta - ignorando: " + eofException.getMessage());
                 } catch (Exception dataException) {
                     plugin.getLogger().fine("Mensagem TagUpdate inválida - ignorando: " + dataException.getMessage());
                 }
             }
-        } catch (java.io.EOFException eofException) {
-            // EOFException geral - mensagem muito curta
-            plugin.getLogger().fine("Mensagem BungeeCord muito curta - ignorando: " + eofException.getMessage());
         } catch (Exception e) {
             plugin.getLogger().fine("Mensagem BungeeCord inválida recebida - ignorando: " + e.getMessage());
         }
@@ -140,6 +131,15 @@ public class BungeeCordMessageListener implements Listener, PluginMessageListene
         if (playerData.getRank() == net.valhallacodes.purplemc.lobby.enums.Rank.MEMBRO) {
             return playerData.getPrefixType().getColor() + playerData.getName();
         }
-        return playerData.getTag().getColoredPrefix() + " " + playerData.getPrefixType().getColor() + playerData.getName();
+        
+        // Usar cor personalizada para LUNA+
+        String prefix;
+        if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+            prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+        } else {
+            prefix = playerData.getTag().getColoredPrefix();
+        }
+        
+        return prefix + " " + playerData.getPrefixType().getColor() + playerData.getName();
     }
 }

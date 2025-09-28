@@ -77,8 +77,16 @@ public class PlayerJoinListener implements Listener {
                 String tagColor = playerData.getTag().getFormattedColor();
                 String playerName = bukkitPlayer.getName();
                 
+                // Usar cor personalizada para LUNA+
+                String prefix;
+                if (playerData.getTag() == net.valhallacodes.purplemc.lobby.enums.Tag.LUNA_PLUS && playerData.getLunaPlusColor() != null) {
+                    prefix = playerData.getTag().getColoredPrefix(playerData.getLunaPlusColor());
+                } else {
+                    prefix = tagColor + "&l" + tagName.toUpperCase() + " " + tagColor;
+                }
+                
                 String message = ChatColor.translateAlternateColorCodes('&', 
-                    tagColor + "&l" + tagName.toUpperCase() + " " + tagColor + playerName + " &6entrou no lobby!");
+                    prefix + playerName + " &6entrou no lobby!");
                 
                 Bukkit.broadcastMessage(message);
             }

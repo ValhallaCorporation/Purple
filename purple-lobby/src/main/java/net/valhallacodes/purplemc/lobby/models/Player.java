@@ -50,6 +50,16 @@ public class Player {
         }
         return rank.getColoredPrefix() + " " + prefixType.getColor() + name;
     }
+    
+    public String getFormattedName(String lunaPlusColor) {
+        if (rank == Rank.MEMBRO) {
+            return prefixType.getColor() + name;
+        }
+        if (tag == Tag.LUNA_PLUS && lunaPlusColor != null) {
+            return tag.getColoredPrefix(lunaPlusColor) + " " + prefixType.getColor() + name;
+        }
+        return rank.getColoredPrefix() + " " + prefixType.getColor() + name;
+    }
 
     public String getFormattedTag() {
         if (tag == Tag.MEMBER) {

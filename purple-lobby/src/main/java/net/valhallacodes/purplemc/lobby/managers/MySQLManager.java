@@ -75,6 +75,7 @@ public class MySQLManager {
                     rank VARCHAR(20) DEFAULT 'MEMBRO',
                     tag VARCHAR(20) DEFAULT 'MEMBER',
                     prefix_type VARCHAR(20) DEFAULT 'DEFAULT_GRAY',
+                    luna_plus_color VARCHAR(10) DEFAULT '§5',
                     first_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     INDEX idx_name (name),
@@ -86,6 +87,18 @@ public class MySQLManager {
             PreparedStatement stmt = connection.prepareStatement(createPlayersTable);
             stmt.executeUpdate();
             stmt.close();
+            
+            // Adicionar coluna luna_plus_color se não existir
+            try {
+                String addLunaPlusColorColumn = "ALTER TABLE players ADD COLUMN luna_plus_color VARCHAR(10) DEFAULT '§5'";
+                PreparedStatement alterStmt = connection.prepareStatement(addLunaPlusColorColumn);
+                alterStmt.executeUpdate();
+                alterStmt.close();
+                plugin.getLogger().info("Coluna luna_plus_color adicionada com sucesso!");
+            } catch (SQLException e) {
+                // Coluna já existe, ignorar erro
+                plugin.getLogger().fine("Coluna luna_plus_color já existe ou erro ao adicionar: " + e.getMessage());
+            }
             
         } catch (SQLException e) {
             plugin.getLogger().severe("Erro ao criar tabela players: " + e.getMessage());
