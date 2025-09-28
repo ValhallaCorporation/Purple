@@ -42,11 +42,57 @@ public class CommandBlockerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
-        String message = event.getMessage().toLowerCase();
         
-        String command = message.substring(1);
+        String message = event.getMessage();
+        if (message == null || message.trim().isEmpty()) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
+        }
+        
+        if (message.length() > 256) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
+        }
+        
+        String lowerMessage = message.toLowerCase();
+        
+        if (!lowerMessage.startsWith("/")) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
+        }
+        
+        if (lowerMessage.length() < 2) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
+        }
+        
+        String command = lowerMessage.substring(1);
+        
+        if (command == null || command.trim().isEmpty()) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
+        }
+        
         if (command.contains(" ")) {
-            command = command.split(" ")[0];
+            String[] parts = command.split(" ");
+            if (parts.length > 0) {
+                command = parts[0];
+            } else {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+                return;
+            }
+        }
+
+        if (command == null || command.trim().isEmpty()) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
+            return;
         }
 
         if (blockedCommands.contains(command)) {
@@ -64,7 +110,7 @@ public class CommandBlockerListener implements Listener {
 
         if (command.contains(":")) {
             String[] parts = command.split(":");
-            if (parts.length > 1 && blockedCommands.contains(parts[1])) {
+            if (parts.length > 1 && parts[1] != null && !parts[1].trim().isEmpty() && blockedCommands.contains(parts[1])) {
                 event.setCancelled(true);
                 player.sendMessage(ChatColor.RED + "Comando desconhecido, não encontrado no banco de dados.");
                 return;
