@@ -71,6 +71,11 @@ public class ServerCountManager {
                 return;
             }
             
+            // Validar serverName
+            if (serverName == null || serverName.trim().isEmpty()) {
+                return;
+            }
+            
             // Usar ByteArrayOutputStream e DataOutputStream como no midup-lobby
             java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream();
             java.io.DataOutputStream out = new java.io.DataOutputStream(b);
@@ -78,7 +83,17 @@ public class ServerCountManager {
             out.writeUTF("PlayerCount");
             out.writeUTF(serverName);
             
-            player.sendPluginMessage(plugin, "BungeeCord", b.toByteArray());
+            byte[] message = b.toByteArray();
+            
+            // Verificar se a mensagem não está vazia
+            if (message == null || message.length == 0) {
+                plugin.getLogger().warning("Mensagem vazia gerada para " + serverName);
+                return;
+            }
+            
+            player.sendPluginMessage(plugin, "BungeeCord", message);
+        } catch (java.io.IOException ioException) {
+            plugin.getLogger().warning("Erro de IO ao enviar request de contagem para " + serverName + ": " + ioException.getMessage());
         } catch (Exception e) {
             plugin.getLogger().warning("Erro ao enviar request de contagem para " + serverName + ": " + e.getMessage());
         }
