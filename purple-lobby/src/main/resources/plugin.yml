@@ -17,3 +17,6 @@ commands:
     aliases: [v]
   fly:
     description: Toggle fly
+  server:
+    description: Connect to a server
+    aliases: [connect, hub]

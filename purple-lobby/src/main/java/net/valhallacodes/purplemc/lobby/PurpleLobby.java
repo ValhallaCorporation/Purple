@@ -6,6 +6,7 @@
 
 package net.valhallacodes.purplemc.lobby;
 
+import net.valhallacodes.purplemc.lobby.gui.ServerSelectorGUI;
 import net.valhallacodes.purplemc.lobby.listeners.PlayerJoinListener;
 import net.valhallacodes.purplemc.lobby.listeners.CustomJoinLeaveListener;
 import net.valhallacodes.purplemc.lobby.listeners.TagUpdateListener;
@@ -20,10 +21,13 @@ import net.valhallacodes.purplemc.lobby.listeners.SlimeJumpListener;
 import net.valhallacodes.purplemc.lobby.listeners.FireworksListener;
 import net.valhallacodes.purplemc.lobby.listeners.LobbyItemsListener;
 import net.valhallacodes.purplemc.lobby.listeners.ProfileClickListener;
+import net.valhallacodes.purplemc.lobby.listeners.ServerSelectorClickListener;
+import net.valhallacodes.purplemc.lobby.listeners.ServerCountListener;
 import net.valhallacodes.purplemc.lobby.managers.MySQLManager;
 import net.valhallacodes.purplemc.lobby.managers.PlayerManager;
 import net.valhallacodes.purplemc.lobby.managers.ScoreboardManager;
 import net.valhallacodes.purplemc.lobby.managers.VanishManager;
+import net.valhallacodes.purplemc.lobby.managers.ServerCountManager;
 import net.valhallacodes.purplemc.lobby.utils.BungeeUtils;
 import net.valhallacodes.purplemc.lobby.utils.LocationUtils;
 import net.valhallacodes.purplemc.lobby.commands.SetLobbyCommand;
@@ -31,6 +35,7 @@ import net.valhallacodes.purplemc.lobby.commands.GamemodeCommand;
 import net.valhallacodes.purplemc.lobby.commands.VanishCommand;
 import net.valhallacodes.purplemc.lobby.commands.BuildCommand;
 import net.valhallacodes.purplemc.lobby.commands.FlyCommand;
+import net.valhallacodes.purplemc.lobby.commands.ServerCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,6 +53,8 @@ public class PurpleLobby extends JavaPlugin {
     private ProtocolTabCompleteBlocker tabCompleteBlocker;
     private VanishManager vanishManager;
     private LobbyProtectionListener protectionListener;
+    private ServerCountManager serverCountManager;
+    private ServerCountListener serverCountListener;
     
     @Override
     public void onEnable() {
@@ -78,6 +85,8 @@ public class PurpleLobby extends JavaPlugin {
         locationUtils = new LocationUtils(this);
         vanishManager = new VanishManager(this);
         protectionListener = new LobbyProtectionListener(this);
+        serverCountListener = new ServerCountListener(this);
+        serverCountManager = serverCountListener.getServerCountManager();
         
         BungeeUtils.initialize(this);
         
@@ -87,6 +96,7 @@ public class PurpleLobby extends JavaPlugin {
         getCommand("vanish").setExecutor(new VanishCommand(this));
         getCommand("build").setExecutor(new BuildCommand(this, protectionListener));
         getCommand("fly").setExecutor(new FlyCommand(this));
+        getCommand("server").setExecutor(new ServerCommand(this));
         
         getServer().getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getServer().getPluginManager().registerEvents(new CustomJoinLeaveListener(this), this);
@@ -99,11 +109,18 @@ public class PurpleLobby extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new FireworksListener(this), this);
         getServer().getPluginManager().registerEvents(new LobbyItemsListener(this), this);
         getServer().getPluginManager().registerEvents(new ProfileClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new ServerSelectorClickListener(this), this);
+        getServer().getPluginManager().registerEvents(new ServerSelectorGUI(this), this);
+        getServer().getPluginManager().registerEvents(serverCountListener, this);
         
         tagUpdateListener = new TagUpdateListener(this);
         getServer().getPluginManager().registerEvents(tagUpdateListener, this);
         
         getServer().getPluginManager().registerEvents(new BungeeCordMessageListener(this), this);
+        
+        // Registrar canal BungeeCord para contagem de servidores
+        getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
+        getServer().getMessenger().registerIncomingPluginChannel(this, "BungeeCord", serverCountListener);
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         
         // Configurar tempo e clima para todos os mundos já carregados
@@ -165,5 +182,9 @@ public class PurpleLobby extends JavaPlugin {
     
     public LobbyProtectionListener getLobbyProtectionListener() {
         return protectionListener;
+    }
+    
+    public ServerCountManager getServerCountManager() {
+        return serverCountManager;
     }
 }
