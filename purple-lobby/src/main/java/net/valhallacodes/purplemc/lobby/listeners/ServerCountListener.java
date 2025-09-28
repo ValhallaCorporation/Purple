@@ -68,16 +68,10 @@ public class ServerCountListener implements Listener, PluginMessageListener {
                         
                         // Log removido para evitar spam
                     }
-                } catch (java.io.EOFException eofException) {
-                    // EOFException específico - mensagem incompleta
-                    plugin.getLogger().fine("Mensagem PlayerCount incompleta - ignorando: " + eofException.getMessage());
                 } catch (Exception dataException) {
                     plugin.getLogger().fine("Mensagem PlayerCount inválida - ignorando: " + dataException.getMessage());
                 }
             }
-        } catch (java.io.EOFException eofException) {
-            // EOFException geral - mensagem muito curta
-            plugin.getLogger().fine("Mensagem BungeeCord muito curta - ignorando: " + eofException.getMessage());
         } catch (Exception e) {
             plugin.getLogger().fine("Mensagem BungeeCord inválida recebida - ignorando: " + e.getMessage());
         }
