@@ -61,9 +61,29 @@ public class ProtocolTabCompleteBlocker {
                 try {
                     PacketContainer packet = event.getPacket();
                     
+                    if (packet == null) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
+                    if (packet.getStringArrays() == null) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
                     String[] suggestions = packet.getStringArrays().read(0);
                     
-                    if (suggestions == null || suggestions.length == 0) {
+                    if (suggestions == null) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                    
+                    if (suggestions.length == 0) {
+                        return;
+                    }
+                    
+                    if (suggestions.length > 100) {
+                        event.setCancelled(true);
                         return;
                     }
 
@@ -72,7 +92,13 @@ public class ProtocolTabCompleteBlocker {
                     for (String suggestion : suggestions) {
                         if (suggestion == null) continue;
                         
+                        if (suggestion.length() > 256) continue;
+                        
+                        if (suggestion.trim().isEmpty()) continue;
+                        
                         String lowerSuggestion = suggestion.toLowerCase();
+                        
+                        if (lowerSuggestion == null) continue;
                         
                         if (blockedCommands.contains(lowerSuggestion)) {
                             continue;
@@ -84,15 +110,24 @@ public class ProtocolTabCompleteBlocker {
                         }
                         
                         if (lowerSuggestion.contains(":")) {
-                            continue;
+                            String[] parts = lowerSuggestion.split(":");
+                            if (parts.length > 1 && parts[1] != null && !parts[1].trim().isEmpty() && blockedCommands.contains(parts[1])) {
+                                continue;
+                            }
                         }
                         
                         filteredSuggestions.add(suggestion);
                     }
                     
-                    packet.getStringArrays().write(0, filteredSuggestions.toArray(new String[0]));
+                    if (filteredSuggestions != null) {
+                        packet.getStringArrays().write(0, filteredSuggestions.toArray(new String[0]));
+                    } else {
+                        event.setCancelled(true);
+                    }
                     
                 } catch (Exception e) {
+                    // Log do erro para debug
+                    plugin.getLogger().warning("Erro no ProtocolTabCompleteBlocker: " + e.getMessage());
                     event.setCancelled(true);
                 }
             }
