@@ -34,7 +34,7 @@ public class PlayerManager {
             }
             
             try (Connection conn = plugin.getBackendManager().getConnection()) {
-                String sql = "SELECT * FROM players WHERE uuid = ?";
+                String sql = "SELECT uuid, name, rank, tag, prefix_type, luna_plus_color, first_login, last_login FROM players WHERE uuid = ?";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setString(1, uuid.toString());
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -56,7 +56,7 @@ public class PlayerManager {
     public CompletableFuture<Player> getPlayer(String name) {
         return CompletableFuture.supplyAsync(() -> {
             try (Connection conn = plugin.getBackendManager().getConnection()) {
-                String sql = "SELECT * FROM players WHERE name = ?";
+                String sql = "SELECT uuid, name, rank, tag, prefix_type, luna_plus_color, first_login, last_login FROM players WHERE name = ?";
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                     stmt.setString(1, name);
                     try (ResultSet rs = stmt.executeQuery()) {
@@ -120,13 +120,28 @@ public class PlayerManager {
     
     public CompletableFuture<Boolean> setRank(UUID uuid, Rank rank) {
         return CompletableFuture.supplyAsync(() -> {
-            Player player = players.get(uuid);
-            if (player != null) {
-                player.setRank(rank);
-                updatePlayer(player);
-                return true;
+            try (Connection conn = plugin.getBackendManager().getConnection()) {
+                // Atualizar diretamente no banco de dados
+                String sql = "UPDATE players SET rank = ?, tag = ? WHERE uuid = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, rank.name());
+                    stmt.setString(2, rank.getCorrespondingTag().name());
+                    stmt.setString(3, uuid.toString());
+                    
+                    int rowsAffected = stmt.executeUpdate();
+                    
+                    // Se o jogador está na cache, atualizar também
+                    Player player = players.get(uuid);
+                    if (player != null) {
+                        player.setRank(rank);
+                    }
+                    
+                    return rowsAffected > 0;
+                }
+            } catch (SQLException e) {
+                plugin.getLogger().severe("Erro ao definir rank para o jogador: " + e.getMessage());
+                return false;
             }
-            return false;
         });
     }
     

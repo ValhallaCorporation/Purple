@@ -18,11 +18,13 @@ import java.util.*;
 
 public class TagCommand extends Command {
 
+    private final PurpleCore plugin;
     private final PlayerManager playerManager;
     private final Map<UUID, Player> playerDataCache;
 
     public TagCommand(PurpleCore plugin) {
         super("tag");
+        this.plugin = plugin;
         this.playerManager = plugin.getPlayerManager();
         this.playerDataCache = new HashMap<>();
     }
@@ -37,28 +39,41 @@ public class TagCommand extends Command {
         ProxiedPlayer player = (ProxiedPlayer) sender;
 
         if (!playerDataCache.containsKey(player.getUniqueId())) {
-            playerManager.getPlayer(player.getUniqueId()).thenAccept(data -> {
-                if (data != null) {
-                    playerDataCache.put(player.getUniqueId(), data);
-                    executeCommand(player, args);
-                } else {
-                    // Se o jogador não existe no banco, criar automaticamente
-                    playerManager.createPlayer(player.getUniqueId(), player.getName()).thenAccept(v -> {
-                        playerManager.getPlayer(player.getUniqueId()).thenAccept(newData -> {
-                            if (newData != null) {
-                                playerDataCache.put(player.getUniqueId(), newData);
-                                executeCommand(player, args);
-                            } else {
-                                player.sendMessage("§cErro ao carregar dados do jogador!");
-                            }
-                        });
-                    });
-                }
-            });
+            loadPlayerData(player, args);
             return;
         }
 
         executeCommand(player, args);
+    }
+
+    private void loadPlayerData(ProxiedPlayer player, String[] args) {
+        try {
+            Player data = playerManager.getPlayer(player.getUniqueId()).get();
+            if (data != null) {
+                playerDataCache.put(player.getUniqueId(), data);
+                executeCommand(player, args);
+            } else {
+                // Se o jogador não existe no banco, criar automaticamente
+                createAndLoadPlayer(player, args);
+            }
+        } catch (Exception e) {
+            player.sendMessage("§cErro ao carregar dados do jogador!");
+        }
+    }
+    
+    private void createAndLoadPlayer(ProxiedPlayer player, String[] args) {
+        try {
+            playerManager.createPlayer(player.getUniqueId(), player.getName()).get();
+            Player newData = playerManager.getPlayer(player.getUniqueId()).get();
+            if (newData != null) {
+                playerDataCache.put(player.getUniqueId(), newData);
+                executeCommand(player, args);
+            } else {
+                player.sendMessage("§cErro ao carregar dados do jogador!");
+            }
+        } catch (Exception e) {
+            player.sendMessage("§cErro ao carregar dados do jogador!");
+        }
     }
 
     private void executeCommand(ProxiedPlayer player, String[] args) {

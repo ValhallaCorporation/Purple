@@ -126,7 +126,10 @@ public enum Rank {
         for (Rank rank : values()) {
             sb.append(rank.getFormattedName()).append("§7, ");
         }
-        return sb.substring(0, sb.length() - 4);
+        if (sb.length() > 4) {
+            return sb.substring(0, sb.length() - 4);
+        }
+        return sb.toString();
     }
 
     public int getLevel() {

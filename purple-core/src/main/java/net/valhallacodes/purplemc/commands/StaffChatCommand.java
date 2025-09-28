@@ -39,7 +39,7 @@ public class StaffChatCommand extends Command {
         
         plugin.getPlayerManager().getPlayer(player.getUniqueId()).thenAccept(playerData -> {
             if (playerData == null || !canUseStaffChat(playerData.getRank())) {
-                player.sendMessage("§cVocê não tem permissão para usar o staffchat!");
+                player.sendMessage("§cVocê não tem permissão para usar este comando!");
                 return;
             }
             
@@ -90,9 +90,9 @@ public class StaffChatCommand extends Command {
     }
     
     private void sendStaffMessageDirect(ProxiedPlayer sender, Player playerData, String message) {
-        String formattedMessage = "§5§l[STAFFCHAT] " + playerData.getRank().getColoredPrefix() + 
-                                playerData.getPrefixType().getColor() + sender.getName() + 
-                                "§8» §f" + message;
+        String formattedMessage = "§5§l[SC] " + playerData.getRank().getColoredPrefix() + 
+                                playerData.getTag().getColor() + sender.getName() + 
+                                "§f: " + message;
         
         for (ProxiedPlayer staff : plugin.getProxy().getPlayers()) {
             plugin.getPlayerManager().getPlayer(staff.getUniqueId()).thenAccept(staffData -> {
@@ -104,9 +104,9 @@ public class StaffChatCommand extends Command {
     }
     
     public void sendStaffMessage(ProxiedPlayer sender, Player playerData, String message) {
-        String formattedMessage = "§5§l[STAFFCHAT] " + playerData.getRank().getColoredPrefix() + 
-                                playerData.getPrefixType().getColor() + sender.getName() + 
-                                "§8» §f" + message;
+        String formattedMessage = "§5§l[SC] " + playerData.getRank().getColoredPrefix() + 
+                                playerData.getTag().getColor() + sender.getName() + 
+                                "§f: " + message;
         
         for (ProxiedPlayer staff : plugin.getProxy().getPlayers()) {
             plugin.getPlayerManager().getPlayer(staff.getUniqueId()).thenAccept(staffData -> {

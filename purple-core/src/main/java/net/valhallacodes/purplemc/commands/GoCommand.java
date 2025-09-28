@@ -54,8 +54,15 @@ public class GoCommand extends Command {
                 return;
             }
             
-            player.connect(target.getServer().getInfo());
-            player.sendMessage(ChatColor.GREEN + "Teleportando para " + target.getName() + "...");
+            // Verificar se já está no mesmo servidor
+            if (player.getServer().getInfo().getName().equals(target.getServer().getInfo().getName())) {
+                // Já está no mesmo servidor
+                player.sendMessage(ChatColor.YELLOW + "Você já está no mesmo servidor que " + target.getName() + "!");
+            } else {
+                // Conectar ao servidor do jogador
+                player.connect(target.getServer().getInfo());
+                player.sendMessage(ChatColor.GREEN + "Conectando ao servidor de " + target.getName() + "...");
+            }
         });
     }
 }
