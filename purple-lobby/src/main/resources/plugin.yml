@@ -1,0 +1,19 @@
+name: PurpleLobby
+version: 1.0.0
+main: net.valhallacodes.purplemc.lobby.PurpleLobby
+author: PxxdroBits
+depend: [ProtocolLib]
+
+commands:
+  setlobby:
+    description: Set lobby spawn
+  build:
+    description: Toggle build mode
+  gamemode:
+    description: Change gamemode
+    aliases: [gm]
+  vanish:
+    description: Toggle vanish
+    aliases: [v]
+  fly:
+    description: Toggle fly
