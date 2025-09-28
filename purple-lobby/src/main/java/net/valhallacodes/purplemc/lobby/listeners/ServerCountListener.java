@@ -43,10 +43,21 @@ public class ServerCountListener implements Listener, PluginMessageListener {
         try {
             // Usar ByteStreams como no midup-lobby
             com.google.common.io.ByteArrayDataInput in = com.google.common.io.ByteStreams.newDataInput(message);
+            
+            // Verificar se há dados suficientes para ler o subChannel
+            if (message.length < 2) {
+                return;
+            }
+            
             String subChannel = in.readUTF();
             
             if (subChannel.equals("PlayerCount")) {
                 try {
+                    // Verificar se há dados suficientes para ler serverName e playerCount
+                    if (message.length < 10) { // Mínimo para UTF + INT
+                        return;
+                    }
+                    
                     String serverName = in.readUTF();
                     int playerCount = in.readInt();
                     
@@ -57,10 +68,16 @@ public class ServerCountListener implements Listener, PluginMessageListener {
                         
                         // Log removido para evitar spam
                     }
+                } catch (java.io.EOFException eofException) {
+                    // EOFException específico - mensagem incompleta
+                    plugin.getLogger().fine("Mensagem PlayerCount incompleta - ignorando: " + eofException.getMessage());
                 } catch (Exception dataException) {
-                    plugin.getLogger().fine("Mensagem PlayerCount incompleta ou inválida - ignorando: " + dataException.getMessage());
+                    plugin.getLogger().fine("Mensagem PlayerCount inválida - ignorando: " + dataException.getMessage());
                 }
             }
+        } catch (java.io.EOFException eofException) {
+            // EOFException geral - mensagem muito curta
+            plugin.getLogger().fine("Mensagem BungeeCord muito curta - ignorando: " + eofException.getMessage());
         } catch (Exception e) {
             plugin.getLogger().fine("Mensagem BungeeCord inválida recebida - ignorando: " + e.getMessage());
         }
